@@ -1,7 +1,10 @@
+import ServiceManagement
 import SwiftUI
 
 @main
 struct LidCloseApp: App {
+    @State var isLogin: Bool = SMAppService.mainApp.status == .enabled
+
     var body: some Scene {
         let _ = NSApplication.shared.setActivationPolicy(.prohibited)
 
@@ -16,7 +19,17 @@ struct LidCloseApp: App {
             timer.invalidate()
         }
 
-        return MenuBarExtra("", systemImage: "lock.open.laptopcomputer") {
+        return MenuBarExtra("", systemImage: isLogin ? "autostartstop" : "autostartstop.slash") {
+            Button("Start at login: \(isLogin ? "On" : "Off")") {
+                do {
+                    if isLogin {
+                        try SMAppService.mainApp.unregister()
+                    } else {
+                        try SMAppService.mainApp.register()
+                    }
+                    isLogin = SMAppService.mainApp.status == .enabled
+                } catch {}
+            }
             Button("Quit") {
                 NSApplication.shared.terminate(nil)
             }
